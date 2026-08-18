@@ -1,0 +1,36 @@
+[package]
+name = "feed-rs-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+# This crate is deliberately its OWN workspace root (empty [workspace] below).
+# feed-rs's root Cargo.toml (upstream file, never edited) IS a workspace
+# ([workspace] members = ["feed-rs", "tools"]), so without this, cargo would
+# try to fold mayhem/fuzz/ into THAT workspace (path outside the members list,
+# resolving a second, conflicting Cargo.lock) instead of treating it as its
+# own root. An empty [workspace] table anchors resolution here, keeping this
+# crate — and its Cargo.lock — fully additive under mayhem/.
+[workspace]
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.feed-rs]
+path = "../../feed-rs"
+# Default features only (no "sanitize"/ammonia) — the fuzz target exercises
+# parser::parse (XML/JSON sniffing + Atom/RSS0/RSS1/RSS2/JSON Feed parsing),
+# which is available without the optional sanitize feature.
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "parse"
+path = "fuzz_targets/parse.rs"
+test = false
+doc = false
+bench = false

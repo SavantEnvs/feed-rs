@@ -1,0 +1,9 @@
+project: savantenvs/feed-rs
+target: parse
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/parse/testsuite
+cmds:
+  - cmd: /mayhem/parse
+    libfuzzer: true
+    dictionary: /mayhem/parse.dict
