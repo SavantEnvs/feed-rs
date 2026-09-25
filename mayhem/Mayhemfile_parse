@@ -1,0 +1,9 @@
+# origin: https://app.mayhem.security/mayhemheroes/feed-rs/parse/6
+project: savantenvs/feed-rs
+target: parse-buggy-mhh-run-6
+testsuite:
+  - https://$MAYHEM_DOMAIN/$MAYHEM_PROJECT/$MAYHEM_TARGET/testsuite.tar
+cmds:
+  - cmd: /mayhem/parse
+    libfuzzer: true
+    dictionary: /mayhem/parse.dict

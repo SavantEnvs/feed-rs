@@ -1,0 +1,32 @@
+[workspace]
+# Deliberately empty — this makes `mayhem/kat` its OWN workspace root, decoupled from the
+# upstream root Cargo.toml (which IS a workspace: members = ["feed-rs", "tools"]). We must not
+# add this crate to that upstream manifest; this file is entirely additive under mayhem/.
+
+[package]
+name = "mayhem-kat"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+# Known-answer-test probe for mayhem/test.sh (SPEC §6.3 anti-reward-hacking;
+# docs/netnew-worker-prompt.md §4).
+#
+# WHY A SEPARATE BINARY: `cargo test` links tests into a `--test` harness binary, which the spec
+# explicitly forbids as the sole oracle (a statically-linked-enough / runner-judged test binary
+# can survive LD_PRELOAD neutering). This crate is a normal `[[bin]]` with `fn main()`, built with
+# plain `cargo build` (no sanitizer instrumentation — a functional oracle, not a triage artifact)
+# and dynamically linked against glibc (Rust's default for a std binary on this target —
+# build.sh asserts this), so the verify-repo sabotage shim's LD_PRELOAD can reach it. It parses
+# three FIXED feeds already shipped by upstream under feed-rs/fixture/ (one Atom, one RSS 1.0, one
+# JSON Feed — three independent parser modules) through the real public `feed_rs::parser::parse`
+# entry point and prints the exact computed values as `KAT_<NAME>=<value>` lines. mayhem/test.sh
+# matches each line EXACTLY (grep -qxF). A parser regression, or a neutered ("sabotaged") binary
+# that prints nothing, fails every one of these checks.
+
+[dependencies]
+feed-rs = { path = "../../feed-rs" }
+
+[[bin]]
+name = "kat"
+path = "src/main.rs"
